@@ -14,7 +14,7 @@ def extract_luminous_flux(file_content):
         if "TILT=NONE" in line:
             if i + 1 < len(lines):  # Ensure the next line exists
                 next_line = lines[i + 1]
-                st.write(f"Debug: Line after 'TILT=NONE' - {next_line}")  # Optional debug
+                st.write(f"Debug: Line after 'TILT=NONE' - {next_line}")  # Optional: comment out for cleaner UI
                 try:
                     luminous_flux = float(next_line.split()[1])  # Extract second value
                     return luminous_flux
@@ -47,19 +47,16 @@ def process_files(uploaded_files):
     return pd.DataFrame(data)
 
 
-def save_to_csv(dataframe):
-    """Save the dataframe to a CSV file and return as bytes."""
-    output = BytesIO()
-    dataframe.to_csv(output, index=False)
-    output.seek(0)
-    return output
+def convert_df_to_csv(df):
+    """Convert DataFrame to CSV bytes."""
+    return df.to_csv(index=False).encode("utf-8")
 
 
 # Streamlit App
 st.title("🔆 Batch Luminous Flux Extractor")
-st.write("Upload your IES files to extract and round luminous flux values.")
+st.write("Upload IES files to extract luminous flux values and download them as a CSV file.")
 
-uploaded_files = st.file_uploader("Upload IES Files", accept_multiple_files=True, type=["ies"])
+uploaded_files = st.file_uploader("Upload IES Files", type=["ies"], accept_multiple_files=True)
 
 if uploaded_files:
     df = process_files(uploaded_files)
@@ -68,15 +65,14 @@ if uploaded_files:
         st.write("### ✅ Extracted Data")
         st.dataframe(df)
 
-        # Save to CSV
-        csv_file = save_to_csv(df)
+        # Convert to CSV for download
+        csv_data = convert_df_to_csv(df)
 
-        # Download button
         st.download_button(
             label="📥 Download CSV File",
-            data=csv_file,
+            data=csv_data,
             file_name="luminous_flux_data.csv",
             mime="text/csv"
         )
     else:
-        st.write("⚠️ No valid luminous flux values were found in the uploaded files.")
+        st.write("⚠️ No valid luminous flux values found in uploaded files.")
