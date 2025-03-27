@@ -45,8 +45,8 @@ def process_files(uploaded_files):
 def save_to_excel(dataframe):
     """Save the dataframe to an Excel file and return as bytes."""
     output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        dataframe.to_excel(writer, index=False, sheet_name='Luminous Flux')
+    output = "output.csv"
+    df.to_csv(output, index=False, sheet_name='Luminous Flux')
     output.seek(0)
     return output
 
